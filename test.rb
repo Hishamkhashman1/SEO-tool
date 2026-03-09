@@ -1,3 +1,4 @@
+require 'nokogiri'
 
 # getting input frmo user
 print "Enter URL for SEO Check"
