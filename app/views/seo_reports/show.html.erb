@@ -1,0 +1,21 @@
+<h1>SEO Results</h1>
+
+<p>
+  <strong>URL analyzed:</strong>
+  <%= @url %>
+</p>
+
+<table>
+  <tbody>
+    <% @results.each do |label, value| %>
+      <tr>
+        <td><strong><%= label %></strong></td>
+        <td><%= value.present? ? value : "Not found" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <%= link_to "Analyze another URL", root_path %>
+</p>
