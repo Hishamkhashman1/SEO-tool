@@ -1,21 +1,85 @@
 <h1>SEO Results</h1>
 
-<p>
+<p class="subtitle">
   <strong>URL analyzed:</strong>
   <%= @url %>
 </p>
 
-<table>
-  <tbody>
-    <% @results.each do |label, value| %>
-      <tr>
-        <td><strong><%= label %></strong></td>
-        <td><%= value.present? ? value : "Not found" %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<%# Group labels into sections for a cleaner UI %>
+<% sections = {
+  "Basic SEO" => [
+    "Title",
+    "Title Length",
+    "Favicon",
+    "Meta description",
+    "Meta description length",
+    "Meta keywords",
+    "Author",
+    "Canonical",
+    "Robots meta",
+    "Page language",
+    "Viewport meta"
+  ],
+  "Content Structure" => [
+    "H1 count",
+    "H2 count",
+    "H3 count",
+    "Strong tags",
+    "EM tags",
+    "Paragraph count",
+    "UL count",
+    "OL count",
+    "Tables count"
+  ],
+  "Technical Signals" => [
+    "Button count",
+    "Forms count",
+    "Iframes count",
+    "Elements with inline style",
+    "Elements with id",
+    "Elements with class",
+    "Word count",
+    "Images missing alt",
+    "Total images",
+    "Empty links",
+    "Structured data blocks"
+  ],
+  "Links" => [
+    "Internal links",
+    "External links",
+    "Nofollow links"
+  ],
+  "Social Metadata" => [
+    "OG title",
+    "OG description"
+  ]
+} %>
+
+<% sections.each do |section_title, labels| %>
+  <section class="card">
+    <h2><%= section_title %></h2>
+
+    <table class="results-table">
+      <tbody>
+        <% labels.each do |label| %>
+          <% value = @results[label] %>
+          <tr>
+            <td class="label"><%= label %></td>
+            <td>
+              <%# Make selected URL values clickable %>
+              <% if ["Favicon", "Canonical"].include?(label) && value.present? %>
+                <%= link_to value, value, target: "_blank", rel: "noopener" %>
+              <% else %>
+                <%= value.present? ? value : "Not found" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% end %>
 
 <p>
-  <%= link_to "Analyze another URL", root_path %>
+  <%= link_to "Analyze another URL", root_path, class: "link" %>
 </p>
