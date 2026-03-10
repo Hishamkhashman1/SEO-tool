@@ -1,24 +1,27 @@
-# README
+# SEO Tool (Rails)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A simple Ruby on Rails web app that checks basic SEO signals for a given URL.
 
-Things you may want to cover:
 
-* Ruby version
+## Features
+- One-page form to enter a URL
+- Displays SEO signals in grouped sections
 
-* System dependencies
 
-* Configuration
+## Requirements
+- Ruby 3.3.5
+- Rails 7.1.x
 
-* Database creation
+## Setup
+```bash
+bundle install
+```
 
-* Database initialization
+## Run locally
+```bash
+bundle exec rails s
+```
+Open `http://localhost:3000` in your browser.
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Notes
+- SEO parsing uses `open-uri` and `nokogiri`.
