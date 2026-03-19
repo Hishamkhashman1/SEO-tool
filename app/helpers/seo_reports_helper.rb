@@ -8,11 +8,13 @@ module SeoReportsHelper
 
     {
       score: overall,
-      tier: tier_for(overall),
-      summary: summary_for(categories),
+      rank: rank_for(overall),
+      summary: summary_for(categories, overall),
+      roast_summary: roast_summary_for(categories, overall),
       categories: categories,
       badges: build_badges(metrics),
-      highlights: build_highlights(metrics)
+      highlights: build_highlights(metrics, roast: false),
+      roast_highlights: build_highlights(metrics, roast: true)
     }
   end
 
@@ -134,93 +136,139 @@ module SeoReportsHelper
 
   def build_badges(metrics)
     [
-      badge("Title Pulse", "Title length in the optimal zone.", metrics[:title_present] && metrics[:title_length].between?(30, 65)),
-      badge("Meta Magnet", "Meta description tuned for previews.", metrics[:meta_desc_present] && metrics[:meta_desc_length].between?(70, 160)),
-      badge("Structure Prime", "H1 + H2 hierarchy detected.", metrics[:h1] == 1 && metrics[:h2] >= 1),
-      badge("Alt Guardian", "Every image ships with alt text.", metrics[:total_images] > 0 && metrics[:images_missing_alt] == 0),
-      badge("Schema Spark", "Structured data detected.", metrics[:structured_data] > 0),
-      badge("Link Architect", "Healthy internal/external balance.", metrics[:internal_links] >= 5 && metrics[:external_links] >= 1),
-      badge("Social Surge", "Open Graph tags are complete.", metrics[:og_title_present] && metrics[:og_desc_present]),
-      badge("Viewport Pilot", "Mobile viewport configured.", metrics[:viewport_present])
+      badge("Title Pulse", "Title length in the optimal zone.",
+        "Unlock by tuning the title length.", metrics[:title_present] && metrics[:title_length].between?(30, 65)),
+      badge("Meta Magnet", "Meta description tuned for previews.",
+        "Unlock by adding a meta description.", metrics[:meta_desc_present] && metrics[:meta_desc_length].between?(70, 160)),
+      badge("Structure Prime", "H1 + H2 hierarchy detected.",
+        "Unlock by adding an H1 and H2.", metrics[:h1] == 1 && metrics[:h2] >= 1),
+      badge("Alt Guardian", "Every image ships with alt text.",
+        "Unlock by fixing image alt coverage.", metrics[:total_images] > 0 && metrics[:images_missing_alt] == 0),
+      badge("Schema Spark", "Structured data detected.",
+        "Unlock by adding structured data.", metrics[:structured_data] > 0),
+      badge("Link Architect", "Healthy internal/external balance.",
+        "Unlock by strengthening internal and external links.", metrics[:internal_links] >= 5 && metrics[:external_links] >= 1),
+      badge("Social Surge", "Open Graph tags are complete.",
+        "Unlock by adding OG title and description.", metrics[:og_title_present] && metrics[:og_desc_present]),
+      badge("Viewport Pilot", "Mobile viewport configured.",
+        "Unlock by adding a viewport meta tag.", metrics[:viewport_present])
     ]
   end
 
-  def build_highlights(metrics)
+  def build_highlights(metrics, roast: false)
     issues = []
-    issues << "Meta description missing." unless metrics[:meta_desc_present]
-    issues << "No H1 heading detected." if metrics[:h1] == 0
-    issues << "Images missing alt: #{metrics[:images_missing_alt]}." if metrics[:images_missing_alt] > 0
-    issues << "No Open Graph preview tags." unless metrics[:og_title_present] || metrics[:og_desc_present]
-    issues << "Structured data not detected." if metrics[:structured_data] == 0
-    issues << "Empty links detected: #{metrics[:empty_links]}." if metrics[:empty_links] > 0
-
     positives = []
-    positives << "Title tag detected." if metrics[:title_present]
-    positives << "Canonical tag detected." if metrics[:canonical_present]
-    positives << "Structured data present." if metrics[:structured_data] > 0
-    positives << "Social tags complete." if metrics[:og_title_present] && metrics[:og_desc_present]
+
+    if roast
+      issues << "Your site is hiding its brain - no structured data detected." if metrics[:structured_data] == 0
+      issues << "No H1 found. The page forgot its name tag." if metrics[:h1] == 0
+      issues << "Meta description is missing. Search previews are running on vibes." unless metrics[:meta_desc_present]
+      issues << "Images missing alt: #{metrics[:images_missing_alt]}. Vision is not optional." if metrics[:images_missing_alt] > 0
+      issues << "Open Graph tags are sleeping. Social previews look blank." unless metrics[:og_title_present] || metrics[:og_desc_present]
+      issues << "Empty links detected: #{metrics[:empty_links]}. Dead ends everywhere." if metrics[:empty_links] > 0
+
+      positives << "Identity confirmed - title tag locked in." if metrics[:title_present]
+      positives << "Canonical is set. Duplicate chaos avoided." if metrics[:canonical_present]
+      positives << "Structured data online. The bots can read your mind." if metrics[:structured_data] > 0
+      positives << "Social tags complete. Previews are battle-ready." if metrics[:og_title_present] && metrics[:og_desc_present]
+    else
+      issues << "Your site is hiding its brain - no structured data detected." if metrics[:structured_data] == 0
+      issues << "No H1 heading detected. Give the page a primary headline." if metrics[:h1] == 0
+      issues << "Meta description missing. Add one for sharper previews." unless metrics[:meta_desc_present]
+      issues << "Images missing alt: #{metrics[:images_missing_alt]}. Describe those visuals." if metrics[:images_missing_alt] > 0
+      issues << "Open Graph tags missing. Social previews are blind." unless metrics[:og_title_present] || metrics[:og_desc_present]
+      issues << "Empty links detected: #{metrics[:empty_links]}. Clean up dead ends." if metrics[:empty_links] > 0
+
+      positives << "Identity confirmed - title tag locked in." if metrics[:title_present]
+      positives << "Canonical tag active. Duplicates stay in check." if metrics[:canonical_present]
+      positives << "Structured data detected. Machines can parse you." if metrics[:structured_data] > 0
+      positives << "Social tags complete. Previews are ready." if metrics[:og_title_present] && metrics[:og_desc_present]
+    end
 
     (issues + positives).first(4)
   end
 
-  def summary_for(categories)
+  def summary_for(categories, overall)
     return "Signal capture complete." if categories.empty?
 
-    sorted = categories.sort_by { |cat| cat[:score] }
-    lowest = sorted.first
-    highest = sorted.last
-    "Strongest signal: #{highest[:name]}. Needs attention: #{lowest[:name]}."
-  end
-
-  def tier_for(score)
-    case score
-    when 90..100
-      "Neon Vanguard"
-    when 80..89
-      "Circuit Elite"
-    when 70..79
-      "Signal Adept"
-    when 60..69
-      "Grid Runner"
+    strongest, weakest = strongest_and_weakest(categories)
+    if overall >= 85
+      "Strong signal overall. #{weakest[:name]} still needs tuning."
+    elsif overall >= 70
+      "Momentum is building. #{strongest[:name]} is leading, #{weakest[:name]} needs backup."
     else
-      "Noise Initiate"
+      "Low signal stability. #{strongest[:name]} holds the line while #{weakest[:name]} drifts."
     end
   end
 
-  def badge(name, description, unlocked)
+  def roast_summary_for(categories, overall)
+    return "Signal capture complete." if categories.empty?
+
+    strongest, weakest = strongest_and_weakest(categories)
+    if overall >= 85
+      "Nice work. #{weakest[:name]} is the last boss."
+    elsif overall >= 70
+      "You are halfway to elite. #{strongest[:name]} is saving you, #{weakest[:name]} is not."
+    else
+      "Rough landing. #{strongest[:name]} survived, #{weakest[:name]} did not."
+    end
+  end
+
+  def rank_for(score)
+    case score
+    when 95..100
+      "Google Whisperer"
+    when 80..94
+      "Circuit Elite"
+    when 60..79
+      "Signal Rising"
+    when 40..59
+      "Barely Indexed"
+    else
+      "Dead Site"
+    end
+  end
+
+  def badge(name, description, hint, unlocked)
     {
       name: name,
       description: description,
+      hint: hint,
       unlocked: unlocked
     }
   end
 
   def metadata_hint(metrics)
-    return "Title + meta description active." if metrics[:title_present] && metrics[:meta_desc_present]
-    "Metadata coverage needs attention."
+    return "Title and meta description are broadcasting." if metrics[:title_present] && metrics[:meta_desc_present]
+    "Metadata coverage is thin. Boost your signals."
   end
 
   def content_hint(metrics)
     return "Headings and content volume look healthy." if metrics[:h1] >= 1 && metrics[:paragraphs] >= 3
-    "Boost headings or text volume."
+    "Content depth is light. Add more structure and text."
   end
 
   def technical_hint(metrics)
     return "Technical signals are stable." if metrics[:structured_data] > 0 && metrics[:empty_links] == 0
-    "Tighten technical hygiene."
+    "Technical layer needs cleanup."
   end
 
   def link_hint(metrics)
-    return "Internal and external links active." if metrics[:internal_links] >= 3 && metrics[:external_links] >= 1
-    "Link graph is light."
+    return "Internal and external links are alive." if metrics[:internal_links] >= 3 && metrics[:external_links] >= 1
+    "Link graph is light. Add more paths."
   end
 
   def social_hint(metrics)
     return "Open Graph tags ready." if metrics[:og_title_present] && metrics[:og_desc_present]
-    "Add Open Graph previews."
+    "Social previews are dark. Add OG tags."
   end
 
   def clamp_score(score)
     [[score, 0].max, 100].min
+  end
+
+  def strongest_and_weakest(categories)
+    sorted = categories.sort_by { |cat| cat[:score] }
+    [sorted.last, sorted.first]
   end
 end
