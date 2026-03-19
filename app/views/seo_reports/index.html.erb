@@ -1,6 +1,10 @@
-<h1>SEO Checker</h1>
-
-<p class="subtitle">Enter a URL to analyze its basic SEO signals.</p>
+<section class="hero">
+  <div>
+    <p class="eyebrow">SEO Scanner</p>
+    <h1>SEO Signal Console</h1>
+    <p class="subtitle">Drop a URL and get a cyber-punk grade on its on-page SEO signals.</p>
+  </div>
+</section>
 
 <% if @error.present? %>
   <div class="alert" role="alert">
@@ -11,7 +15,7 @@
 <%# Simple, beginner-friendly form %>
 <%= form_with url: seo_reports_path, method: :post, local: true, class: "card" do |form| %>
   <div class="field">
-    <%= form.label :url, "URL" %>
+    <%= form.label :url, "Target URL" %>
     <%= form.text_field :url,
       value: @url,
       placeholder: "https://example.com",
@@ -20,6 +24,6 @@
   </div>
 
   <div>
-    <%= form.submit "Check SEO", class: "button" %>
+    <%= form.submit "Run Scan", class: "button" %>
   </div>
 <% end %>

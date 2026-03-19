@@ -1,9 +1,21 @@
-<h1>SEO Results</h1>
+<section class="hero">
+  <div>
+    <p class="eyebrow">Scan Complete</p>
+    <h1>SEO Signal Report</h1>
+    <p class="subtitle">Diagnostics for the target URL.</p>
+    <div class="hero-url">
+      <span class="label">Target</span>
+      <span><%= @url %></span>
+    </div>
+  </div>
+  <div>
+    <%= link_to "Analyze another URL", root_path, class: "button ghost" %>
+  </div>
+</section>
 
-<p class="subtitle">
-  <strong>URL analyzed:</strong>
-  <%= @url %>
-</p>
+<section class="card glass">
+  <%= react_component("ScoreReport", seo_score_payload(@results)) %>
+</section>
 
 <%# Group labels into sections for a cleaner UI %>
 <% sections = {
@@ -57,15 +69,19 @@
 
 <% sections.each do |section_title, labels| %>
   <section class="card">
-    <h2><%= section_title %></h2>
+    <div class="section-header">
+      <h2><%= section_title %></h2>
+      <p class="section-subtitle">Raw signal capture</p>
+    </div>
 
     <table class="results-table">
       <tbody>
         <% labels.each do |label| %>
           <% value = @results[label] %>
+          <% missing = value.blank? %>
           <tr>
             <td class="label"><%= label %></td>
-            <td>
+            <td class="<%= missing ? 'value-muted' : '' %>">
               <%# Make selected URL values clickable %>
               <% if ["Favicon", "Canonical"].include?(label) && value.present? %>
                 <%= link_to value, value, target: "_blank", rel: "noopener" %>
@@ -79,7 +95,3 @@
     </table>
   </section>
 <% end %>
-
-<p>
-  <%= link_to "Analyze another URL", root_path, class: "link" %>
-</p>

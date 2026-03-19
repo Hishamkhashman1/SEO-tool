@@ -7,10 +7,11 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application" %>
+    <%= javascript_include_tag "application", defer: true %>
   </head>
 
   <body>
-    <%# Simple centered layout wrapper %>
+    <div class="neon-backdrop" aria-hidden="true"></div>
     <main class="container">
       <%= yield %>
     </main>

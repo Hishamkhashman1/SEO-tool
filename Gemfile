@@ -14,6 +14,10 @@ gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# React components embedded in ERB
+gem "react-rails"
+gem "connection_pool", "~> 2.4"
+
 # HTML parsing for the SEO analyzer
 gem "nokogiri"
 
