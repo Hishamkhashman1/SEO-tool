@@ -1,5 +1,5 @@
 # SEO Tool (Rails)
-
+![app screenshot](SEO-screenshot.png)
 A simple Ruby on Rails web app that checks basic SEO signals for a given URL.
 
 
